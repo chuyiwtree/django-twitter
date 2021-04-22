@@ -36,7 +36,7 @@ class AccountApiTests(TestCase):
             'password': self.user.password,
         })
         # 登陆失败，http status code 返回 405 = METHOD_NOT_ALLOWED
-        print("chuyi test" + self.user.password)
+        # print("chuyi test" + self.user.password)
         self.assertEqual(response.status_code, 405)
 
         # 用了 post 但是密码错了
@@ -87,7 +87,7 @@ class AccountApiTests(TestCase):
         self.assertEqual(response.data['has_logged_in'], False)
 
     def test_signup(self):
-        data={
+        data = {
             'username': 'someone',
             'email': 'someone@jiuzhang.com',
             'password': 'any password',
@@ -130,11 +130,10 @@ class AccountApiTests(TestCase):
         self.assertEqual(response.data['user']['email'], 'someone@jiuzhang.com')
         # 验证用户已经登入
         response = self.client.get(LOGIN_STATUS_URL)
-        print("++++++++")
-        print(response.data)
+        # print(response.data)
         self.assertEqual(response.data['has_logged_in'], True)
 
-    def test_signup_sucessed(self):
+    def test_signup_successed(self):
         self._test_logged_in(False)
         response = self.client.post(SIGNUP_URL, {
             'username': 'SOMEONE',
@@ -167,4 +166,4 @@ class AccountApiTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual('username' in response.data['errors'], False)
         self.assertEqual('email' in response.data['errors'], True)
-        print(response.data)
+        # print(response.data)
