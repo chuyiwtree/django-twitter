@@ -18,6 +18,11 @@ class AccountApiTests(TestCase):
             password='correct password',
         )
 
+    def _test_logged_in(self, expect_status):
+        response = self.client.get(LOGIN_STATUS_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['has_logged_in'], expect_status)
+
     def createUser(self, username, email, password):
         # 不能写成 User.objects.create()
         # 因为 password 需要被加密, username 和 email 需要进行一些 normalize 处理
@@ -125,6 +130,41 @@ class AccountApiTests(TestCase):
         self.assertEqual(response.data['user']['email'], 'someone@jiuzhang.com')
         # 验证用户已经登入
         response = self.client.get(LOGIN_STATUS_URL)
-        print(response)
+        print("++++++++")
+        print(response.data)
         self.assertEqual(response.data['has_logged_in'], True)
 
+    def test_signup_sucessed(self):
+        self._test_logged_in(False)
+        response = self.client.post(SIGNUP_URL, {
+            'username': 'SOMEONE',
+            'email': 'Someone@JIUZHANG.com',
+            'password': 'any password',
+        })
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['user']['username'], 'someone')
+        self.assertEqual(response.data['user']['email'], 'someone@jiuzhang.com')
+        self._test_logged_in(True)
+
+    def test_username_occupied(self):
+        User.objects.create_user(username='linghu', email='linghu@jiuzhang.com')
+        response = self.client.post(SIGNUP_URL, {
+            'username': 'Linghu',
+            'email': 'linghuchong@ninechpater.com',
+            'password': 'any password',
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual('username' in response.data['errors'], True)
+        self.assertEqual('email' in response.data['errors'], False)
+
+    def test_email_occupied(self):
+        User.objects.create_user(username='linghu', email='linghu@jiuzhang.com')
+        response = self.client.post(SIGNUP_URL, {
+            'username': 'linghuchong',
+            'email': 'Linghu@Jiuzhang.com',
+            'password': 'any password',
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual('username' in response.data['errors'], False)
+        self.assertEqual('email' in response.data['errors'], True)
+        print(response.data)
