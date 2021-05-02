@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 class SignupSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=20, min_length=6)
     password = serializers.CharField(max_length=20, min_length=6)
-    email = serializers.EmailField
+    email = serializers.EmailField()
 
     class Meta:
         model = User
@@ -20,11 +20,11 @@ class SignupSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if User.objects.filter(username=data['username'].lower()).exists():
             raise exceptions.ValidationError({
-                'message': 'This username has been occupied.'
+                'username': 'This username has been occupied.'
             })
-        if User.objects.filter(username=data['email'].lower()).exists():
+        if User.objects.filter(email=data['email'].lower()).exists():
             raise exceptions.ValidationError({
-                'message': 'This email address has been occupied.'
+                'email': 'This email address has been occupied.'
             })
         return data
 
@@ -44,3 +44,12 @@ class SignupSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+    def validate(self, attrs):
+        username = attrs['username'].lower()
+        if not User.objects.filter(username=username).exists():
+            raise exceptions.ValidationError({
+                'username': 'User does not exist.'
+            })
+        attrs['username'] = username
+        return attrs
