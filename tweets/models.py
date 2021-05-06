@@ -15,7 +15,11 @@ class Tweet(models.Model):
     )
     content = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
+    # updated_at = models.DateTimeField(auto_now=True, db_index=True)
+
+    class Meta:
+        index_together = (('user', 'created_at'),)
+        ordering = ('user', '-created_at')
 
     @property
     def hours_to_now(self):
@@ -23,4 +27,5 @@ class Tweet(models.Model):
         return (utc_now() - self.created_at).seconds // 3600
 
     def __str__(self):
+        # 这里是你执行 print(tweet instance) 的时候会显示的内容
         return f'{self.created_at} {self.user} {self.content}'
