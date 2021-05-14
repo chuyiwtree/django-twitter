@@ -39,7 +39,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
     @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
     def follow(self, request, pk):
         # /api/friendships/<pk>/follow/
-        # get_object() 回通过上面定义的query_set id=pk取user 取不到会抛404
+        # get_object() 会通过上面定义的query_set id=pk取user 取不到会抛404
         # follow_user = self.get_object()
         serializer = FriendshipSerializerForCreate(data={
             'from_user_id': request.user.id,
