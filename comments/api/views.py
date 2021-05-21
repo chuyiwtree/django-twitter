@@ -18,6 +18,7 @@ class CommentViewSet(viewsets.GenericViewSet):
     """
     queryset = Comment.objects.all()
     serializer_class = CommentSerializerForCreate
+    filterset_fields = ('tweet_id',)
 
     def get_permissions(self):
         # 注意要加用 AllowAny() / IsAuthenticated() 实例化出对象
@@ -28,7 +29,26 @@ class CommentViewSet(viewsets.GenericViewSet):
             return [IsAuthenticated(), IsObjectOwner()]
         return [AllowAny()]
 
-    # why no action if not override?
+    def list(self, request, *args, **kwargs):
+        if 'tweet_id' not in request.query_params:
+            return Response(
+                {
+                    'message': 'missing tweed_id in request',
+                    'success': False,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        queryset = self.get_queryset()
+        # prefetch_related 数据库优化
+        comments = self.filter_queryset(queryset)\
+            .prefetch_related('user')\
+            .order_by('created_at')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(
+            {'comments': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
     def create(self, request, *args, **kwargs):
         data = {
             'user_id': request.user.id,
