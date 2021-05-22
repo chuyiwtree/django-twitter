@@ -9,6 +9,7 @@ from comments.api.serializers import (
     CommentSerializerForUpdate,
 )
 from comments.models import Comment
+from utils.decorators import required_params
 
 
 class CommentViewSet(viewsets.GenericViewSet):
@@ -20,6 +21,13 @@ class CommentViewSet(viewsets.GenericViewSet):
     serializer_class = CommentSerializerForCreate
     filterset_fields = ('tweet_id',)
 
+    # POST /api/comments/ -> create
+    # GET /api/comments/?tweet_id=1 -> list
+    # GET /api/comments/1/ -> retrieve
+    # DELETE /api/comments/1/ -> destroy
+    # PATCH /api/comments/1/ -> Partial_update
+    # PUT /api/comments/1/ -update
+
     def get_permissions(self):
         # 注意要加用 AllowAny() / IsAuthenticated() 实例化出对象
         # 而不是 AllowAny / IsAuthenticated 这样只是一个类名
@@ -29,15 +37,8 @@ class CommentViewSet(viewsets.GenericViewSet):
             return [IsAuthenticated(), IsObjectOwner()]
         return [AllowAny()]
 
+    @required_params(params=['tweet_id'])
     def list(self, request, *args, **kwargs):
-        if 'tweet_id' not in request.query_params:
-            return Response(
-                {
-                    'message': 'missing tweed_id in request',
-                    'success': False,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         queryset = self.get_queryset()
         # prefetch_related 数据库优化
         comments = self.filter_queryset(queryset)\
