@@ -15,6 +15,7 @@ class TweetSerializer(serializers.ModelSerializer):
 
 class TweetSerializerWithComments(serializers.ModelSerializer):
     user = UserSerializer()
+    # <HOMEWORK> 使用 serialziers.SerializerMethodField 的方式实现 comments
     comments = CommentSerializer(source='comment_set', many=True)
 
     class Meta:

@@ -68,10 +68,12 @@ class TweetApiTests(TestCase):
         self.assertEqual(Tweet.objects.count(), tweets_count + 1)
 
     def test_retrieve_api(self):
+        # tweet with id=-1 does not exist
         url = TWEET_RETRIEVE_API.format(-1)
         response = self.anonymous_client.get(url)
         self.assertEqual(response.status_code, 404)
 
+        # 获取某个 tweet 的时候会一起把 comments 也拿下
         tweet = self.create_tweet(self.user1)
         url = TWEET_RETRIEVE_API.format(tweet.id)
         response = self.anonymous_client.get(url)
