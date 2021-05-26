@@ -1,7 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+from likes.models import Like
 from tweets.models import Tweet
 
 
@@ -27,3 +29,10 @@ class Comment(models.Model):
             self.content,
             self.tweet_id,
         )
+
+    @property
+    def like_set(self):
+        return Like.objects.filter(
+            content_type=ContentType.objects.get_for_model(Comment),
+            object_id=self.id,
+        ).order_by('-created_at')
