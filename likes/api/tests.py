@@ -4,11 +4,11 @@ LIKE_BASE_URL = '/api/likes/'
 
 class LikeApiTests(TestCase):
 
-    def setUpt(self):
+    def setUp(self):
         self.linghu, self.linghu_client = self.create_user_and_client('linghu')
-        self.dongxie, self.dongxie_client = self.create_user_and_clent('dongxie')
+        self.dongxie, self.dongxie_client = self.create_user_and_client('dongxie')
 
-    def test_tweet_like(self):
+    def test_tweet_likes(self):
         tweet = self.create_tweet(self.linghu)
         data = {'content_type': 'tweet', 'object_id': tweet.id}
 

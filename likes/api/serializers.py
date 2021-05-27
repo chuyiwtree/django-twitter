@@ -41,10 +41,10 @@ class LikeSerializerForCreate(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        model_class = self._get_model_class()
+        model_class = self._get_model_class(validated_data)
         instance, _ = Like.objects.get_or_create(
             content_type=ContentType.objects.get_for_model(model_class),
-            ojbect_id=validated_data['object_id'],
+            object_id=validated_data['object_id'],
             user=self.context['request'].user
         )
         return instance

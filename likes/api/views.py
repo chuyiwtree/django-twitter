@@ -21,7 +21,7 @@ class LikeViewSet(viewsets.GenericViewSet):
             data=request.data,
             context={'request': request},
         )
-        if not serializer.is_valide():
+        if not serializer.is_valid():
             return Response({
                 'message': 'Please check input',
                 'errors': serializer.errors,
