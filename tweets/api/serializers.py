@@ -1,29 +1,64 @@
+
 from rest_framework import serializers
 
 from comments.api.serializers import CommentSerializer
+from likes.api.serializers import LikeSerializer
+from likes.services import LikeService
 from tweets.models import Tweet
 from accounts.api.serializers import UserSerializerForTweet, UserSerializer
 
 
 class TweetSerializer(serializers.ModelSerializer):
     user = UserSerializerForTweet()
+    has_liked = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Tweet
-        fields = ('id', 'user', 'created_at', 'content')
+        fields = ('id',
+                  'user',
+                  'created_at',
+                  'content',
+                  'has_liked',
+                  'comments_count',
+                  'likes_count',
+                  )
+
+    def get_likes_count(self, obj):
+        return obj.like_set.count()
+
+    # django 自带的反查机制
+    def get_comments_count(self, obj):
+        return obj.comment_set.count()
+
+    def get_has_liked(self, obj):
+        return LikeService.has_liked(self.context['request'].user, obj)
 
 
-class TweetSerializerWithComments(serializers.ModelSerializer):
-    user = UserSerializer()
+class TweetSerializerForDetail(TweetSerializer):
+    user = UserSerializerForTweet()
     # <HOMEWORK> 使用 serialziers.SerializerMethodField 的方式实现 comments
     comments = CommentSerializer(source='comment_set', many=True)
+    likes = LikeSerializer(source='like_set', many=True)
 
     class Meta:
         model = Tweet
-        fields = ('id', 'user', 'created_at', 'content', 'comments')
+        fields = (
+            'id',
+            'user',
+            'comments',
+            'created_at',
+            'content',
+            'likes',
+            'comments',
+            'likes_count',
+            'comments_count',
+            'has_liked',
+        )
 
 
-class TweetCreateSerializer(serializers.ModelSerializer):
+class TweetSerializerForCreate(serializers.ModelSerializer):
     content = serializers.CharField(min_length=6, max_length=140)
 
     class Meta:
