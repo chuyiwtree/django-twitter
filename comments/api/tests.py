@@ -32,11 +32,11 @@ class CommentApiTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
         # 只带 tweet_id 不行
-        response = self.linghu_client.post(COMMENT_URL)
+        response = self.linghu_client.post(COMMENT_URL, {'tweet_id': self.tweet.id})
         self.assertEqual(response.status_code, 400)
 
         # 只带 content 不行
-        response = self.linghu_client.post(COMMENT_URL, {'tweet_id': self.tweet.id})
+        response = self.linghu_client.post(COMMENT_URL, {'content': '1'})
         self.assertEqual(response.status_code, 400)
 
         # content 太长不行
