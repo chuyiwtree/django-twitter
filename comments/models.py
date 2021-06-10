@@ -14,6 +14,7 @@ class Comment(models.Model):
     """
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     tweet = models.ForeignKey(Tweet, null=True, on_delete=models.SET_NULL)
+    # here if the content field can leave as blank then use blank=True
     content = models.TextField(max_length=140)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
