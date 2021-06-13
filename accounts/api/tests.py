@@ -1,3 +1,5 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from accounts.models import UserProfile
 from testing.testcases import TestCase
 from rest_framework.test import APIClient
@@ -7,6 +9,7 @@ LOGIN_URL = '/api/accounts/login/'
 LOGOUT_URL = '/api/accounts/logout/'
 SIGNUP_URL = '/api/accounts/signup/'
 LOGIN_STATUS_URL = '/api/accounts/login_status/'
+USER_PROFILE_DETAIL_URL = '/api/profiles/{}/'
 
 
 class AccountApiTests(TestCase):
@@ -54,7 +57,7 @@ class AccountApiTests(TestCase):
         print(self.user.password)
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(response.data['user'], None)
-        self.assertEqual(response.data['user']['email'], 'admin@jiuzhang.com')
+        self.assertEqual(response.data['user']['id'], self.user.id)
         self.assertEqual(response.data['user']['username'], 'admin')
 
         # 验证已经登录了
@@ -123,7 +126,6 @@ class AccountApiTests(TestCase):
         response = self.client.post(SIGNUP_URL, data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['user']['username'], 'someone')
-        self.assertEqual(response.data['user']['email'], 'someone@jiuzhang.com')
 
         # 验证 user profile 已经被创建
         created_user_id = response.data['user']['id']
@@ -144,7 +146,6 @@ class AccountApiTests(TestCase):
         })
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['user']['username'], 'someone')
-        self.assertEqual(response.data['user']['email'], 'someone@jiuzhang.com')
         self._test_logged_in(True)
 
     def test_username_occupied(self):
@@ -169,3 +170,51 @@ class AccountApiTests(TestCase):
         self.assertEqual('username' in response.data['errors'], False)
         self.assertEqual('email' in response.data['errors'], True)
         # print(response.data)
+
+
+class UserProfileAPITests(TestCase):
+
+    def test_update(self):
+        linghu, linghu_client = self.create_user_and_client('linghu')
+        p = linghu.profile
+        p.nickname = 'old nickname'
+        p.save()
+        url = USER_PROFILE_DETAIL_URL.format(p.id)
+
+        # anonymous use can not update profile
+        response = self.anonymous_client.put(url, {
+            'nickname': 'a new nickname',
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['detail'], 'Authentication credentials were not provided.')
+
+        # test can only be updated by user himself.
+        _, dongxie_client = self.create_user_and_client('donexie')
+        response = dongxie_client.put(url, {
+            'nickname': 'a new nickname',
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['detail'], 'You do not have permission to access this object')
+        p.refresh_from_db()
+        self.assertEqual(p.nickname, 'old nickname')
+
+        # update nickname
+        response = linghu_client.put(url, {
+            'nickname': 'a new nickname',
+        })
+        self.assertEqual(response.status_code, 200)
+        p.refresh_from_db()
+        self.assertEqual(p.nickname, 'a new nickname')
+
+        # update avatar
+        response = linghu_client.put(url, {
+            'avatar': SimpleUploadedFile(
+                name='my-avatar.jpg',
+                content=str.encode('a fake image'),
+                content_type='image/jpeg',
+            ),
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual('my-avatar' in response.data['avatar'], True)
+        p.refresh_from_db()
+        self.assertIsNotNone(p.avatar)
