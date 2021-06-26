@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+from accounts.services import UserService
 from likes.models import Like
 from tweets.models import Tweet
 
@@ -37,3 +38,7 @@ class Comment(models.Model):
             content_type=ContentType.objects.get_for_model(Comment),
             object_id=self.id,
         ).order_by('-created_at')
+
+    @property
+    def cached_user(self):
+        return UserService.get_user_through_cache(self.user_id)
