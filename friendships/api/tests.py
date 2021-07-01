@@ -43,7 +43,7 @@ class FriendshipApiTests(TestCase):
         self.assertEqual(response.status_code, 400)
         # follow 成功
         response = self.dongxie_client.post(url)
-        print(response.data)
+        # print(response.data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual('created_at' in response.data, True)
         self.assertEqual('user' in response.data, True)

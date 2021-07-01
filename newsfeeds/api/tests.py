@@ -114,7 +114,7 @@ class NewsFeedApiTests(TestCase):
 
         response = self.dongxie_client.get(NEWSFEEDS_URL)
         results = response.data['results']
-        print(results)
+        # print(results)
         self.assertEqual(results[0]['tweet']['user']['username'], 'dongxie')
         self.assertEqual(results[0]['tweet']['user']['nickname'], 'huanglaoxie')
         self.assertEqual(results[1]['tweet']['user']['username'], 'linghu')
