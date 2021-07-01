@@ -55,7 +55,7 @@ class AccountApiTests(TestCase):
             'username': self.user.username,
             'password': 'correct password',
         })
-        print(self.user.password)
+        # print(self.user.password)
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(response.data['user'], None)
         self.assertEqual(response.data['user']['id'], self.user.id)
