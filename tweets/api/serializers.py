@@ -46,6 +46,7 @@ class TweetSerializer(serializers.ModelSerializer):
             photo_urls.append(photo.file.url)
         return photo_urls
 
+
 class TweetSerializerForDetail(TweetSerializer):
     user = UserSerializerForTweet()
     # <HOMEWORK> 使用 serialziers.SerializerMethodField 的方式实现 comments
