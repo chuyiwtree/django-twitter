@@ -9,6 +9,7 @@ from tweets.constants import TWEET_PHOTOS_UPLOAD_LIMIT
 from tweets.models import Tweet
 from accounts.api.serializers import UserSerializerForTweet, UserSerializer
 from tweets.services import TweetService
+from utils.redis_helper import RedisHelper
 
 
 class TweetSerializer(serializers.ModelSerializer):
@@ -31,11 +32,11 @@ class TweetSerializer(serializers.ModelSerializer):
                   )
 
     def get_likes_count(self, obj):
-        return obj.like_set.count()
+        return RedisHelper.get_count(obj, 'likes_count')
 
     # django 自带的反查机制
     def get_comments_count(self, obj):
-        return obj.comment_set.count()
+        return RedisHelper.get_count(obj, 'comments_count')
 
     def get_has_liked(self, obj):
         return LikeService.has_liked(self.context['request'].user, obj)
@@ -45,6 +46,7 @@ class TweetSerializer(serializers.ModelSerializer):
         for photo in obj.tweetphoto_set.all().order_by('order'):
             photo_urls.append(photo.file.url)
         return photo_urls
+
 
 class TweetSerializerForDetail(TweetSerializer):
     user = UserSerializerForTweet()
