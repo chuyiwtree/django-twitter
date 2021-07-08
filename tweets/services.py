@@ -20,6 +20,7 @@ class TweetService(object):
 
     @classmethod
     def get_cached_tweet(cls, user_id):
+        # queryset is lazy loading, here is not get data from db yet
         queryset = Tweet.objects.filter(user_id=user_id).order_by('-created_at')
         key = USER_TWEETS_PATTERN.format(user_id=user_id)
         return RedisHelper.load_objects(key, queryset)
