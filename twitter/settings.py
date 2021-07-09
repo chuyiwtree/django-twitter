@@ -28,7 +28,7 @@ SECRET_KEY = 'wf14dje&rcjx0s-#fd*skepk1_1y*x%w&6qoa5t4%z+9c+3*_3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','192.168.33.10','localhost']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.33.10', 'localhost']
 INTERNAL_IPS = ['10.0.2.2']
 
 
@@ -114,6 +114,8 @@ DATABASES = {
     }
 }
 
+# HBase Database
+HBASE_HOST = '127.0.0.1'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
