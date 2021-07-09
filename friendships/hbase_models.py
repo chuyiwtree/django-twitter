@@ -1,7 +1,7 @@
 from django_hbase import models
 
 
-class HbaseFollowing(models.HBaseModel):
+class HBaseFollowing(models.HBaseModel):
     """
     存储 from_user_id follow 了哪些人，row_key 按照 from_user_id + created_at 排序
     可以支持查询：
@@ -17,7 +17,7 @@ class HbaseFollowing(models.HBaseModel):
 
     class Meta:
         table_name = 'twitter_followings'
-        row_key = ('form_user_id', 'created_at')
+        row_key = ('from_user_id', 'created_at')
 
 
 class HBaseFollower(models.HBaseModel):
